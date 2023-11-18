@@ -70,8 +70,12 @@ func NewApp() *cli.App {
 		Action: func(c *cli.Context) error {
 			// TODO: Read from config file
 			appConfig := Config{
-				TemplatePath: "work/templates/generated.gtpl",
-				TargetSchema: "public",
+				TemplateConfigs: []TemplateConfig{
+					{
+						TemplatePath: "work/templates/sqlc-query.gtpl",
+						TargetSchema: "public",
+					},
+				},
 			}
 			return appAction(c.Context, appConfig, *dbConfig)
 		},
@@ -89,20 +93,25 @@ func appAction(ctx context.Context, appCfg Config, dbCfg DbConfig) error {
 	defer conn.Close(ctx)
 
 	queries := db.New(conn)
-	dat, err := os.ReadFile(appCfg.TemplatePath)
-	if err != nil {
-		return err
-	}
-	templateString := string(dat)
+	for _, templateCfg := range appCfg.TemplateConfigs {
+		dat, err := os.ReadFile(templateCfg.TemplatePath)
+		if err != nil {
+			return err
+		}
+		templateString := string(dat)
 
-	columnDefs, err := queries.GetColumnDefinitions(ctx, appCfg.TargetSchema)
-	if err != nil {
-		return err
+		columnDefs, err := queries.GetColumnDefinitions(ctx, templateCfg.TargetSchema)
+		if err != nil {
+			return err
+		}
+		tableToColumns := lo.GroupBy(columnDefs, func(c db.GetColumnDefinitionsRow) string {
+			return c.TableName
+		})
+		ret, err := codegen.Generate(tableToColumns, templateString, templateCfg.TemplatePath)
+		if err != nil {
+			return err
+		}
+		fmt.Println(ret)
 	}
-	tableToColumns := lo.GroupBy(columnDefs, func(c db.GetColumnDefinitionsRow) string {
-		return c.TableName
-	})
-	ret, err := codegen.Generate(tableToColumns, templateString, appCfg.TemplatePath)
-	fmt.Println(ret)
-	return err
+	return nil
 }
