@@ -70,10 +70,8 @@ func NewApp() *cli.App {
 		Action: func(c *cli.Context) error {
 			// TODO: Read from config file
 			appConfig := Config{
-				TemplatePath: "templates/generated.gtpl",
-				Filterings: []FilteringConfig{
-					{SchemaName: "public"},
-				},
+				TemplatePath: "work/templates/generated.gtpl",
+				TargetSchema: "public",
 			}
 			return appAction(c.Context, appConfig, *dbConfig)
 		},
@@ -97,17 +95,14 @@ func appAction(ctx context.Context, appCfg Config, dbCfg DbConfig) error {
 	}
 	templateString := string(dat)
 
-	for _, fcfg := range appCfg.Filterings {
-		columnDefs, err := queries.GetColumnDefinitions(ctx, fcfg.SchemaName)
-		if err != nil {
-			return err
-		}
-		tableToColumns := lo.GroupBy(columnDefs, func(c db.GetColumnDefinitionsRow) string {
-			return c.TableName
-		})
-		for tableName, columns := range tableToColumns {
-			codegen.GenerateSql(tableName, columns, templateString)
-		}
+	columnDefs, err := queries.GetColumnDefinitions(ctx, appCfg.TargetSchema)
+	if err != nil {
+		return err
 	}
-	return nil
+	tableToColumns := lo.GroupBy(columnDefs, func(c db.GetColumnDefinitionsRow) string {
+		return c.TableName
+	})
+	ret, err := codegen.Generate(tableToColumns, templateString, appCfg.TemplatePath)
+	fmt.Println(ret)
+	return err
 }
