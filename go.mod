@@ -1,6 +1,6 @@
 module github.com/Attsun1031/sqlc-query-gen
 
-go 1.21.4
+go 1.21
 
 require (
 	github.com/doug-martin/goqu/v9 v9.18.0
