@@ -7,21 +7,17 @@ import (
 	"text/template"
 
 	"github.com/Attsun1031/sqlc-query-gen/pkg/db"
+	"github.com/iancoleman/strcase"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
-const templateString = `
-{{ $tableName := .TableName }}
--- name: Get{{ $tableName | FirstUpper }} :one
-SELECT * FROM {{ $tableName }} WHERE id = $1;
-`
-
 type param struct {
-	TableName string
+	TableName    string
+	TableNameFCU string
 }
 
-func GenerateSql(tableName string, columnDefs []db.GetColumnDefinitionsRow) {
+func GenerateSql(tableName string, columnDefs []db.GetColumnDefinitionsRow, templateString string) {
 	funcMap := template.FuncMap{
 		"ToUpper":    strings.ToUpper,
 		"FirstUpper": cases.Title(language.Und, cases.NoLower).String,
@@ -31,10 +27,13 @@ func GenerateSql(tableName string, columnDefs []db.GetColumnDefinitionsRow) {
 	if err != nil {
 		panic(err)
 	}
-	p := param{TableName: tableName}
+	p := param{
+		TableName:    tableName,
+		TableNameFCU: cases.Title(language.Und, cases.NoLower).String(strcase.ToCamel(tableName)),
+	}
 	err = tmpl.Execute(os.Stdout, p)
 	if err != nil {
-		fmt.Printf("executing template: %v", err)
+		fmt.Printf("exeFCUting template: %v", err)
 		panic(err)
 	}
 }

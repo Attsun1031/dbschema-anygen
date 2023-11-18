@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/Attsun1031/sqlc-query-gen/pkg/codegen"
 	"github.com/Attsun1031/sqlc-query-gen/pkg/db"
@@ -67,7 +68,13 @@ func NewApp() *cli.App {
 		Usage: "Generate sqlc queries",
 		Flags: dbConfig.Flags(),
 		Action: func(c *cli.Context) error {
-			appConfig := Config{Filterings: []FilteringConfig{{SchemaName: "public"}}}
+			// TODO: Read from config file
+			appConfig := Config{
+				TemplatePath: "templates/generated.gtpl",
+				Filterings: []FilteringConfig{
+					{SchemaName: "public"},
+				},
+			}
 			return appAction(c.Context, appConfig, *dbConfig)
 		},
 	}
@@ -84,6 +91,11 @@ func appAction(ctx context.Context, appCfg Config, dbCfg DbConfig) error {
 	defer conn.Close(ctx)
 
 	queries := db.New(conn)
+	dat, err := os.ReadFile(appCfg.TemplatePath)
+	if err != nil {
+		return err
+	}
+	templateString := string(dat)
 
 	for _, fcfg := range appCfg.Filterings {
 		columnDefs, err := queries.GetColumnDefinitions(ctx, fcfg.SchemaName)
@@ -94,7 +106,7 @@ func appAction(ctx context.Context, appCfg Config, dbCfg DbConfig) error {
 			return c.TableName
 		})
 		for tableName, columns := range tableToColumns {
-			codegen.GenerateSql(tableName, columns)
+			codegen.GenerateSql(tableName, columns, templateString)
 		}
 	}
 	return nil
