@@ -1,0 +1,36 @@
+[sqlfluff]
+dialect = postgres
+templater = placeholder
+sql_file_exts = .sql
+large_file_skip_byte_limit = 0
+max_line_length = 120
+
+[sqlfluff:templater:placeholder]
+param_style = numeric_dollar
+
+[sqlfluff:indentation]
+tab_space_size = 4
+
+[sqlfluff:rules:capitalisation.keywords]
+# Keywords
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]
+# Non-keyword capitalization
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:layout.commas]
+# Trailing commas
+comma_style = trailing
+
+[sqlfluff:rules:capitalisation.functions]
+# Function names
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.literals]
+# Null & Boolean Literals
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+# Capitalisation of datatypes
+extended_capitalisation_policy = upper
