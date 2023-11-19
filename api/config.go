@@ -1,6 +1,7 @@
 package api
 
 type Config struct {
+	TargetSchema    string           `yaml:"targetSchema"`
 	TemplateConfigs []TemplateConfig `yaml:"templateConfigs"`
 }
 
@@ -15,5 +16,4 @@ type DbConfig struct {
 
 type TemplateConfig struct {
 	TemplatePath string `yaml:"templatePath"`
-	TargetSchema string `yaml:"targetSchema"`
 }

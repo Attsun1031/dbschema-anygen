@@ -12,10 +12,14 @@ import (
 const getColumnDefinitions = `-- name: GetColumnDefinitions :many
 SELECT
     CAST(table_schema AS TEXT) AS table_schema,
-    cast(table_name AS TEXT) AS table_name,
-    cast(column_name AS TEXT) AS column_name,
-    cast(data_type AS TEXT) AS data_type,
-    cast(ordinal_position AS INTEGER) AS ordinal_position
+    CAST(table_name AS TEXT) AS table_name,
+    CAST(column_name AS TEXT) AS column_name,
+    CAST(data_type AS TEXT) AS data_type,
+    CASE(is_nullable)
+        WHEN 'YES' THEN TRUE
+        ELSE FALSE
+    END AS is_nullable,
+    CAST(ordinal_position AS INTEGER) AS ordinal_position
 FROM information_schema.columns
 WHERE table_schema = $1
 ORDER BY table_schema, table_name, ordinal_position
@@ -26,6 +30,7 @@ type GetColumnDefinitionsRow struct {
 	TableName       string `json:"table_name"`
 	ColumnName      string `json:"column_name"`
 	DataType        string `json:"data_type"`
+	IsNullable      bool   `json:"is_nullable"`
 	OrdinalPosition int32  `json:"ordinal_position"`
 }
 
@@ -43,6 +48,7 @@ func (q *Queries) GetColumnDefinitions(ctx context.Context, tableSchema interfac
 			&i.TableName,
 			&i.ColumnName,
 			&i.DataType,
+			&i.IsNullable,
 			&i.OrdinalPosition,
 		); err != nil {
 			return nil, err
