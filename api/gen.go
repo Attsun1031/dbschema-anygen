@@ -128,6 +128,7 @@ func columnDefsToTemplateParam(columnDefs []db.GetColumnDefinitionsRow) Param {
 	for tableName, columnDefs := range tableToColumnDefs {
 		param.TableParams = append(param.TableParams, TableParam{
 			TableName:        tableName,
+			TableNameCamel:   strcase.ToLowerCamel(tableName),
 			TableNameCamelFU: cases.Title(language.Und, cases.NoLower).String(strcase.ToCamel(tableName)),
 			Columns: lo.Map(columnDefs, func(columnDef db.GetColumnDefinitionsRow, idx int) ColumnParam {
 				return ColumnParam{
