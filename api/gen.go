@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/Attsun1031/sqlc-query-gen/pkg/db"
+	"github.com/Attsun1031/dbschema-anygen/pkg/db"
 	"github.com/iancoleman/strcase"
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/lo"

@@ -1,4 +1,4 @@
-module github.com/Attsun1031/sqlc-query-gen
+module github.com/Attsun1031/dbschema-anygen
 
 go 1.21
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Attsun1031/sqlc-query-gen/api"
+	"github.com/Attsun1031/dbschema-anygen/api"
 	"github.com/urfave/cli/v2"
 )
 
