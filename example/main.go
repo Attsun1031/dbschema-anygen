@@ -70,9 +70,11 @@ func NewApp() *cli.App {
 				TemplateConfigs: []api.TemplateConfig{
 					{
 						TemplatePath: "templates/sqlc-query.gtpl",
+						OutputPath:   "out/generated.sql",
 					},
 					{
 						TemplatePath: "templates/graphql.gtpl",
+						OutputPath:   "out/generated.graphql",
 					},
 				},
 				DbConfig: *dbConfig,

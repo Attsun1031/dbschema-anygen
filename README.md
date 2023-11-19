@@ -17,5 +17,5 @@ generator := api.NewGenerator(api.WithFuncMap(
         "YourFunction": YourFunction,
     },
 ))
-ret, err := generator.Generate(c.Context, cfg)
+err := generator.Generate(c.Context, cfg)
 ```

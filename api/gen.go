@@ -65,6 +65,8 @@ func (x *Generator) Generate(ctx context.Context, cfg Config) error {
 		return err
 	}
 	tmplParam := columnDefsToTemplateParam(columnDefs)
+
+	resultMap := make(map[string][]byte, len(cfg.TemplateConfigs))
 	for _, templateCfg := range cfg.TemplateConfigs {
 		fmt.Printf("Generate %s\n", templateCfg.TemplatePath)
 
@@ -85,10 +87,19 @@ func (x *Generator) Generate(ctx context.Context, cfg Config) error {
 		if err != nil {
 			return err
 		}
-		ret := strings.Trim(buf.String(), "\n ")
+		ret := bytes.Trim(buf.Bytes(), "\n ")
 
-		// Output genereated contents
-		fmt.Println(ret)
+		// Save result on memory.
+		resultMap[templateCfg.OutputPath] = ret
+	}
+
+	// Write results to files
+	for outputPath, result := range resultMap {
+		fmt.Printf("Write %s\n", outputPath)
+		err = os.WriteFile(outputPath, result, 0644)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
