@@ -1,16 +1,16 @@
 {{- range $i, $param := .TableParams -}}
 
 {{ $tableName := $param.TableName -}}
-{{ $tableNameFCU := $param.TableNameFCU -}}
+{{ $tableNameCamelFU := $param.TableNameCamelFU -}}
 {{ $columns := $param.Columns -}}
 
--- name: Get{{ $tableNameFCU }} :one
+-- name: Get{{ $tableNameCamelFU }} :one
 SELECT * FROM {{ $tableName }} WHERE id = $1;
 
--- name: Get{{ $tableNameFCU }}ByIds :many
+-- name: Get{{ $tableNameCamelFU }}ByIds :many
 SELECT * FROM {{ $tableName }} WHERE id = ANY($1::UUID []);
 
--- name: Create{{ $tableNameFCU }} :one
+-- name: Create{{ $tableNameCamelFU }} :one
 INSERT INTO {{ $tableName }} (
 {{- range $i, $col := $columns }}
     {{- if ne $i 0 }}, {{ end }}
@@ -23,7 +23,7 @@ INSERT INTO {{ $tableName }} (
 {{- end -}}
 ) RETURNING *;
 
--- name: Delete{{ $tableNameFCU }} :exec
+-- name: Delete{{ $tableNameCamelFU }} :exec
 DELETE FROM {{ $tableName }} WHERE id = $1;
 
 {{ end }}

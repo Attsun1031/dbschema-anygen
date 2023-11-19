@@ -108,16 +108,16 @@ type Param struct {
 }
 
 type TableParam struct {
-	TableName    string
-	TableNameFCU string
-	Columns      []ColumnParam
+	TableName        string
+	TableNameCamelFU string
+	Columns          []ColumnParam
 }
 
 type ColumnParam struct {
-	ColumnName    string
-	ColumnNameFCU string
-	ColumnType    string
-	IsNullable    bool
+	ColumnName      string
+	ColumnNameCamel string
+	ColumnType      string
+	IsNullable      bool
 }
 
 func columnDefsToTemplateParam(columnDefs []db.GetColumnDefinitionsRow) Param {
@@ -127,14 +127,14 @@ func columnDefsToTemplateParam(columnDefs []db.GetColumnDefinitionsRow) Param {
 	var param Param
 	for tableName, columnDefs := range tableToColumnDefs {
 		param.TableParams = append(param.TableParams, TableParam{
-			TableName:    tableName,
-			TableNameFCU: cases.Title(language.Und, cases.NoLower).String(strcase.ToCamel(tableName)),
+			TableName:        tableName,
+			TableNameCamelFU: cases.Title(language.Und, cases.NoLower).String(strcase.ToCamel(tableName)),
 			Columns: lo.Map(columnDefs, func(columnDef db.GetColumnDefinitionsRow, idx int) ColumnParam {
 				return ColumnParam{
-					ColumnName:    columnDef.ColumnName,
-					ColumnNameFCU: cases.Title(language.Und, cases.NoLower).String(strcase.ToCamel(columnDef.ColumnName)),
-					ColumnType:    columnDef.DataType,
-					IsNullable:    columnDef.IsNullable,
+					ColumnName:      columnDef.ColumnName,
+					ColumnNameCamel: strcase.ToLowerCamel(columnDef.ColumnName),
+					ColumnType:      columnDef.DataType,
+					IsNullable:      columnDef.IsNullable,
 				}
 			}),
 		})
