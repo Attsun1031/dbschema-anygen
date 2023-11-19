@@ -1,9 +1,0 @@
--- -- NOTE: This view is required for sqlc to generate Go code with types.
--- CREATE VIEW information_schema_columns AS SELECT
---     CAST(table_schema AS TEXT) AS table_schema,
---     CAST(table_name AS TEXT) AS table_name,
---     CAST(column_name AS TEXT) AS column_name,
---     CAST(data_type AS TEXT) AS data_type,
---     CAST(ordinal_position AS INTEGER) AS ordinal_position
--- FROM information_schema.columns
--- WHERE table_schema = $1::TEXT

@@ -15,7 +15,7 @@ SELECT
     CAST(table_name AS TEXT) AS table_name,
     CAST(column_name AS TEXT) AS column_name,
     CAST(data_type AS TEXT) AS data_type,
-    CASE(is_nullable)
+    CASE (is_nullable)
         WHEN 'YES' THEN TRUE
         ELSE FALSE
     END AS is_nullable,

@@ -4,6 +4,7 @@ templater = placeholder
 sql_file_exts = .sql
 large_file_skip_byte_limit = 0
 max_line_length = 120
+exclude_rules = ST02
 
 [sqlfluff:templater:placeholder]
 param_style = numeric_dollar
