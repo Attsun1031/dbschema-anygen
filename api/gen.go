@@ -109,6 +109,7 @@ type Param struct {
 
 type TableParam struct {
 	TableName        string
+	TableNameCamel   string
 	TableNameCamelFU string
 	Columns          []ColumnParam
 }
