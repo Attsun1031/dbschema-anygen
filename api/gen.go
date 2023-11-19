@@ -35,7 +35,6 @@ func NewGenerator(opts ...GeneratorOption) *Generator {
 	for _, opt := range opts {
 		opt(g)
 	}
-	fmt.Printf("FuncMaps: %+v\n", g.FuncMaps)
 	return g
 }
 
