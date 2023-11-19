@@ -1,7 +1,16 @@
-package cmd
+package api
 
 type Config struct {
 	TemplateConfigs []TemplateConfig `yaml:"templateConfigs"`
+}
+
+type DbConfig struct {
+	// Connection configuration
+	Host     string
+	Port     int
+	User     string
+	Password string
+	DbName   string
 }
 
 type TemplateConfig struct {

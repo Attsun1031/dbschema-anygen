@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Attsun1031/sqlc-query-gen/pkg/cmd"
+	"github.com/Attsun1031/sqlc-query-gen/cmd"
 )
 
 func main() {
