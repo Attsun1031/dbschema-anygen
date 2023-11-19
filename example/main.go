@@ -65,7 +65,7 @@ func NewApp() *cli.App {
 		Flags: Flags(dbConfig),
 		Action: func(c *cli.Context) error {
 			// TODO: Read from config file
-			appConfig := api.Config{
+			cfg := api.Config{
 				TargetSchema: "public",
 				TemplateConfigs: []api.TemplateConfig{
 					{
@@ -75,6 +75,7 @@ func NewApp() *cli.App {
 						TemplatePath: "templates/graphql.gtpl",
 					},
 				},
+				DbConfig: *dbConfig,
 			}
 			typeBodyGen := &typeBodyGenerator{
 				cfg: TypeConfig{
@@ -98,7 +99,7 @@ func NewApp() *cli.App {
 					"GenGraphQLTypeBody": typeBodyGen.genTypeBody,
 				},
 			))
-			return generator.Generate(c.Context, appConfig, *dbConfig)
+			return generator.Generate(c.Context, cfg)
 		},
 	}
 	return app

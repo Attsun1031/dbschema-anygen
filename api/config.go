@@ -3,6 +3,7 @@ package api
 type Config struct {
 	TargetSchema    string           `yaml:"targetSchema"`
 	TemplateConfigs []TemplateConfig `yaml:"templateConfigs"`
+	DbConfig        DbConfig         `yaml:"dbConfig"`
 }
 
 type DbConfig struct {
