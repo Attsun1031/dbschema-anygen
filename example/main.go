@@ -171,7 +171,7 @@ func toGqlFieldDef(colParam api.ColumnParam) string {
 		return "id: ID!"
 	}
 
-	fieldName := colParam.ColumnNameFCU
+	fieldName := colParam.ColumnNameCamel
 	typeDef := psqlTypeToGqlType(colParam.ColumnType)
 	requiredSign := ""
 	if !colParam.IsNullable {
