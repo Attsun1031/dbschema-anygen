@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -139,6 +140,9 @@ func columnDefsToTemplateParam(columnDefs []db.GetColumnDefinitionsRow) Param {
 					IsNullable:      columnDef.IsNullable,
 				}
 			}),
+		})
+		sort.Slice(param.TableParams, func(i, j int) bool {
+			return param.TableParams[i].TableName < param.TableParams[j].TableName
 		})
 	}
 	return param
