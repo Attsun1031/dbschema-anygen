@@ -122,6 +122,8 @@ func psqlTypeToGqlType(typeName string) string {
 		return "Time"
 	case "uuid":
 		return "UUID"
+	case "user-defined":
+		return "String"
 	}
 	panic("unknown type: " + typeName)
 }
