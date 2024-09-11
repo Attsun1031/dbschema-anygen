@@ -4,9 +4,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Attsun1031/dbschema-anygen/api"
+	"github.com/jackc/pgx/v5"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"github.com/urfave/cli/v2"
 )
 
@@ -17,53 +23,12 @@ func main() {
 	}
 }
 
-func Flags(d *api.DbConfig) []cli.Flag {
-	return []cli.Flag{
-		&cli.StringFlag{
-			Name:        "db-host",
-			Required:    false,
-			Usage:       "db host",
-			EnvVars:     []string{"DB_HOST"},
-			Destination: &d.Host,
-		},
-		&cli.IntFlag{
-			Name:        "db-port",
-			Required:    false,
-			Usage:       "db port",
-			EnvVars:     []string{"DB_PORT"},
-			Destination: &d.Port,
-		},
-		&cli.StringFlag{
-			Name:        "db-user",
-			Required:    false,
-			Usage:       "db user",
-			EnvVars:     []string{"DB_USER"},
-			Destination: &d.User,
-		},
-		&cli.StringFlag{
-			Name:        "db-password",
-			Required:    false,
-			Usage:       "db password",
-			EnvVars:     []string{"DB_PASSWORD"},
-			Destination: &d.Password,
-		},
-		&cli.StringFlag{
-			Name:        "db-name",
-			Required:    false,
-			Usage:       "db name",
-			EnvVars:     []string{"DB_NAME"},
-			Destination: &d.DbName,
-		},
-	}
-}
-
 func NewApp() *cli.App {
-	dbConfig := &api.DbConfig{}
 	app := &cli.App{
 		Name:  "sqlc-query-gen",
 		Usage: "Generate sqlc queries",
-		Flags: Flags(dbConfig),
 		Action: func(c *cli.Context) error {
+			ctx := c.Context
 			// TODO: Read from config file
 			cfg := api.Config{
 				TargetSchema: "public",
@@ -77,7 +42,6 @@ func NewApp() *cli.App {
 						OutputPath:   "out/generated.graphql",
 					},
 				},
-				DbConfig: *dbConfig,
 			}
 			typeBodyGen := &typeBodyGenerator{
 				cfg: TypeConfig{
@@ -87,21 +51,52 @@ func NewApp() *cli.App {
 							TypeDef:     "Example",
 							Description: "Example reference",
 						},
-						{
-							Name:        "example2",
-							TypeDef:     "Example2",
-							Description: "Example2 reference",
-						},
 					},
 				},
 			}
+
+			fmt.Println("Starting testcontainer...")
+			pgContainer, err := postgres.Run(ctx,
+				"docker.io/postgres:15-alpine",
+				postgres.WithInitScripts(filepath.Join("database", "init-db.sql")),
+				postgres.WithDatabase("anygen"),
+				postgres.WithUsername("postgres"),
+				postgres.WithPassword("postgres"),
+				testcontainers.WithWaitStrategy(
+					wait.ForListeningPort("5432/tcp"),
+					wait.ForLog("database system is ready to accept connections").
+						WithOccurrence(2).
+						WithStartupTimeout(5*time.Second),
+				),
+			)
+			if err != nil {
+				log.Fatalf("failed to start container: %s", err)
+			}
+
+			// Clean up the container
+			defer func() {
+				fmt.Println("Terminating container...")
+				if err := pgContainer.Terminate(ctx); err != nil {
+					log.Fatalf("failed to terminate container: %s", err)
+				}
+			}()
+			fmt.Println("Container started")
+
+			connStr := pgContainer.MustConnectionString(ctx, "sslmode=disable")
+			conn, err := pgx.Connect(ctx, connStr)
+			if err != nil {
+				log.Fatalf("failed to connect to container: %s", err)
+			}
+			defer func() {
+				_ = conn.Close(ctx)
+			}()
 
 			generator := api.NewGenerator(api.WithFuncMap(
 				map[string]interface{}{
 					"GenGraphQLTypeBody": typeBodyGen.genTypeBody,
 				},
 			))
-			return generator.Generate(c.Context, cfg)
+			return generator.Generate(ctx, cfg, conn)
 		},
 	}
 	return app
