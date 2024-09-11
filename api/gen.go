@@ -49,7 +49,7 @@ var defaultFuncMap = template.FuncMap{
 	"AddNum":     addNum,
 }
 
-func (x *Generator) GenerateWithPgxConn(ctx context.Context, cfg Config, conn *pgx.Conn) error {
+func (x *Generator) Generate(ctx context.Context, cfg Config, conn *pgx.Conn) error {
 	queries := db.New(conn)
 	columnDefs, err := queries.GetColumnDefinitions(ctx, cfg.TargetSchema)
 	if err != nil {
@@ -93,20 +93,6 @@ func (x *Generator) GenerateWithPgxConn(ctx context.Context, cfg Config, conn *p
 		}
 	}
 	return nil
-}
-
-// Deprecated: Use GenerateWithPgxConn instead.
-func (x *Generator) Generate(ctx context.Context, cfg Config) error {
-	dbCfg := cfg.DbConfig
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s",
-		dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.DbName)
-	conn, err := pgx.Connect(ctx, dsn)
-	if err != nil {
-		return err
-	}
-	defer conn.Close(ctx)
-
-	return x.GenerateWithPgxConn(ctx, cfg, conn)
 }
 
 type Param struct {

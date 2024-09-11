@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS public.users (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
+    is_registered BOOLEAN NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
