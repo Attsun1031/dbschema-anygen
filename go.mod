@@ -1,6 +1,6 @@
 module github.com/Attsun1031/dbschema-anygen
 
-go 1.23
+go 1.23.0
 
 require (
 	github.com/iancoleman/strcase v0.3.0
